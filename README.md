@@ -7,3 +7,5 @@ predict_maxval.py: A Gaussian Process Regression model to predict band gap.
 predict_structure.py :  A Gaussian Process Regression model to predict conduction band maxima, valance band minima and Thermoelectic EFF function.
 
 Bayesian_opt.py : A Bayesian  optimization model to discover material with optimal property witn minimum structure evalulation
+
+Pankaj
