@@ -8,4 +8,3 @@ predict_structure.py :  A Gaussian Process Regression model to predict conductio
 
 Bayesian_opt.py : A Bayesian  optimization model to discover material with optimal property witn minimum structure evalulation
 
-Pankaj
