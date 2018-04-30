@@ -11,12 +11,19 @@ warnings.filterwarnings("ignore")
 
 inputmap=dict()
 ninputmap=dict()
-totfea_atom=2
-natom_layer=6*totfea_atom
-Nbandpoint=30
-Natomsinpayer=6
+totfea_atom=2              #total number of atoms per layer
+Natomsinpayer=6           # number of atoms in 3 layer
+natom_layer=Natomsinpayer*totfea_atom   #total number of features
+Nbandpoint=30             # number of points at which GP model is build
 
+#input paramters
+inputfile_name="3-layer-band_structure.txt"    #file name of the input data
+train_test_split=0.60                    #split between training and test set
+Nruns = 1
+
+#create input feature vector of the given n-layer heterostructure
 def createinputmap(inputmap,ninputmap,totfea_atom):
+    #define the eletronegetivity and ionization potential of each atoms
     inputmap['Mo'] = [2.16,684.3,190.0]
     inputmap['W'] = [2.36,770.0,193.0]
     inputmap['S'] = [2.58,999.6,88.8]
@@ -52,9 +59,8 @@ def createinputmap(inputmap,ninputmap,totfea_atom):
         ninputmap[keys]=list()
         for ii in range(0, totfea_atom):
             ninputmap[keys].append((inputmap[keys][ii]-Xmin[ii])/(Xmax[ii]-Xmin[ii]))   # normalized by by (tt-xmax)/(xmax-xmin)
-#            ninputmap[keys].append((inputmap[keys][ii]-Xmean[ii])/Xstd[ii])
 
-
+#read input data
 def readinput(filename,natom_layer,Natomsinpayer,Nbandpoint):
     inputfile=open(filename,'r')
     itag=0
@@ -70,7 +76,6 @@ def readinput(filename,natom_layer,Natomsinpayer,Nbandpoint):
             itag=1
         else :
             lines = lines.replace("\n", "").split()
-#            print("lines: ",lines)
             structname=str()
             count+=1
             for ii in range(0,Natomsinpayer):
@@ -89,6 +94,7 @@ def readinput(filename,natom_layer,Natomsinpayer,Nbandpoint):
 #            print("databottom: ",lines[Natomsinpayer+Nbandpoint:lines.__len__()])
     return Xdata,Ytopdata,Ybotdata,Xinfo,ndata
 
+#read x-axis value of the 30 points at which gp model is build
 def readxaxisval(filename,Nbandpoint):
     inputfile = open(filename, 'r')
     Xdata = np.empty(Nbandpoint, dtype=float)
@@ -98,7 +104,6 @@ def readxaxisval(filename,Nbandpoint):
         count+=1
         Xdata[count]=float(val)
     return Xdata
-
 
 def plotbandstructure(XX,structure,YY1,YY2):
     fig = plt.figure(figsize=(7, 7))
@@ -110,6 +115,7 @@ def plotbandstructure(XX,structure,YY1,YY2):
     plt.title(structure, fontsize=20, fontweight='bold')
     plt.show()
 
+#make polt of the CBM/VBM for the test set inside a folder Bandstructure
 def plotbandtest(XX,structure,YY1true,YY2true,YY1predict,YY2predict,YY1sigma,YY2sigma,myid):
     fig = plt.figure(figsize=(10,10))
     plt.rc('xtick', labelsize=20)
@@ -125,10 +131,11 @@ def plotbandtest(XX,structure,YY1true,YY2true,YY1predict,YY2predict,YY1sigma,YY2
     plt.legend(loc='upper right', bbox_to_anchor=(0.28, 1.16), ncol=1, fancybox=True, shadow=True, prop={'size': 14})
     plt.xlabel('Wave Vector',fontsize=20, fontweight='bold')
     plt.ylabel('Energy(eV)',fontsize=20, fontweight='bold')
-    imagefile = "Bandstruct_1/Strucuture" + str(myid+1)
+    imagefile = "Bandstructure/Strucuture" + str(myid+1)
     plt.savefig(imagefile)
 #    plt.show()
 
+#Build GP regression model
 def gpregression(Xtrain,Ytrain,Nfeature):
     cmean=[1.0]*Nfeature
     cbound=[[1e-3, 10000]]*Nfeature
@@ -148,7 +155,7 @@ def gprediction(gpnetwork,xtest):
 
 #------- Program Starts from here -------------
 createinputmap(inputmap,ninputmap,totfea_atom)
-Xdata,Ytopdata,Ybotdata,Xinfo,ndata=readinput("unique_correct_cbmvbm.txt",natom_layer,Natomsinpayer,Nbandpoint)
+Xdata,Ytopdata,Ybotdata,Xinfo,ndata=readinput(inputfile_name,natom_layer,Natomsinpayer,Nbandpoint)
 xaxisval=readxaxisval("xaxisvalue.txt",Nbandpoint)
 
 for ii in range(0,ndata):
@@ -157,8 +164,7 @@ for ii in range(0,ndata):
  #   plotbandstructure(xaxisval,materialname,Ytopdata[ii,:].ravel(),Ybotdata[ii,:].ravel())
 
 # Make  a regression model for each of the 60 points
-Nruns=1
-ntrain=int(0.60*ndata)
+ntrain=int(train_test_split*ndata)
 ntest=ndata-ntrain
 print("Total training and Test Data: ",ntrain,ntest)
 for ii in range(0,Nruns):

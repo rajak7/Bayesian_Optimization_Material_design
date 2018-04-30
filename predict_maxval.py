@@ -8,15 +8,23 @@ from sklearn.metrics import mean_squared_error as MSError
 
 inputmap=dict()
 ninputmap=dict()
-totfea_atom=2
-natom_layer=6*totfea_atom
+totfea_atom=2              #total number of atoms per layer
+n_3layer_atoms=6           # number of atoms in 3 layer
+natom_layer=n_3layer_atoms*totfea_atom   #total number of features
 
+#input parameters
+inputfile_name="3-layer-band_gap.txt"    #file name of the input data
+train_test_split=0.60                    #split between training and test set
+Nrun = 1
+
+#create input feature vector of the given n-layer heterostructure
 def createinputmap(inputmap,ninputmap,totfea_atom):
-    inputmap['Mo'] = [2.16,684.3,190.0]
-    inputmap['W'] = [2.36,770.0,193.0]
-    inputmap['S'] = [2.58,999.6,88.8]
-    inputmap['Se'] = [2.55,941.0,103.0]
-    inputmap['Te'] = [2.10,869.3,123.0]
+    #define the eletronegetivity and ionization potential of each atoms
+    inputmap['Mo'] = [2.16,684.3]
+    inputmap['W'] = [2.36,770.0]
+    inputmap['S'] = [2.58,999.6]
+    inputmap['Se'] = [2.55,941.0]
+    inputmap['Te'] = [2.10,869.3]
 
     #normalize the input features by (tt-xmax)/(xmax-xmin)
     Xmax = np.empty(totfea_atom,dtype=float)
@@ -46,7 +54,6 @@ def createinputmap(inputmap,ninputmap,totfea_atom):
     for keys in inputmap:
         ninputmap[keys]=list()
         for ii in range(0, totfea_atom):
-#            ninputmap[keys].append((inputmap[keys][ii]-Xmin[ii])/(Xmax[ii]-Xmin[ii]))   # normalized by by (tt-xmax)/(xmax-xmin)
             ninputmap[keys].append((inputmap[keys][ii]-Xmean[ii])/Xstd[ii])
     #print the final keys:
 #    for keys in inputmap:
@@ -55,7 +62,7 @@ def createinputmap(inputmap,ninputmap,totfea_atom):
 #        print("nkey :", keys, ninputmap[keys])
 
 
-
+#read input data
 def readinput(filename,natom_layer):
     inputfile=open(filename,'r')
     dataset=list()
@@ -66,19 +73,15 @@ def readinput(filename,natom_layer):
         if itag==0:
             ndata=int(lines)
             Xdata = np.ndarray(shape=(ndata, natom_layer), dtype=float)
-#            Ydata = np.ndarray(shape=(ndata, 1), dtype=float)
             Ydata = np.empty(ndata,dtype=float)
             itag=1
         else :
             lines = lines.replace("\n", "").split()
-#            print(lines,lines.__len__())
             count+=1
             for ii in range(0,lines.__len__()-1):
                 jj=lines[ii]
- #               print(3*ii,3*ii+1,3*ii+2,jj,inputmap[jj][0],inputmap[jj][1],inputmap[jj][2])
                 Xdata[count][2 * ii] = ninputmap[jj][0]
                 Xdata[count][2 * ii + 1] = ninputmap[jj][1]
-#                Xdata[count][3 * ii + 2] = ninputmap[jj][2]
             Ydata[count] = float(lines[lines.__len__() - 1])
 
     #print the entire dataset
@@ -86,15 +89,13 @@ def readinput(filename,natom_layer):
 #        print("data: ",ii,Xdata[ii][:],Ydata[ii])
     return Xdata,Ydata,ndata
 
-
+#building a gaussian process regression model
 def gpregression(Xtrain,Ytrain,Xtest,Ytest,ntrain,ntest):
     print("regression")
     cmean=[1.0]*12
     cbound=[[1e-3, 1000]]*12
-#    kernel = C(1.0, [1e-3, 1e3]) * RBF(cmean, cbound)
     kernel = C(1.0, (1e-3, 1e3)) * matk(cmean, cbound, 1.5)+ Wht(1.0, (1e-3, 1e3))
 #    kernel = C(1.0, (1e-3, 1e3)) * matk(1, (1e-05, 1000.0), 2.5) + Wht(1.0, (1e-3, 1e3))+ C(1.0, (1e-3, 1e3)) * RBF(10, (1e-2, 1e2))
-#    kernel = C(1.0, (1e-3, 1e3)) * matk(1, (1e-05, 1000.0), 2.5)+C(1.0, (1e-3, 1e3)) * RBF(10, (1e-2, 1e2))
 
     gp = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=100, normalize_y=False)
     gp.fit(Xtrain, Ytrain)
@@ -151,26 +152,26 @@ def gpregression(Xtrain,Ytrain,Xtest,Ytest,ntrain,ntest):
 #    plt.close()
     return
 
-#------- Program Starts from here -------------
+
+
+#------- Main Program -------------
 
 createinputmap(inputmap,ninputmap,totfea_atom)
-Xdata,Ydata,ndata=readinput("177data.txt",natom_layer)
+Xdata,Ydata,ndata=readinput(inputfile_name,natom_layer)
+
 print("Original Training and Y :",np.shape(Xdata),np.shape(Ydata))
 print("Transpose Training and Y : ",np.shape(np.transpose(Xdata)),np.shape(np.transpose(Ydata)))
 print("Original Training and Y :",np.shape(Xdata),np.shape(Ydata))
 
-ntrain=int(0.40*ndata)
+ntrain=int(train_test_split*ndata)
 ntest=ndata-ntrain
 print("Total training and Test Data: ",ntrain,ntest)
-for ii in range(0,1):
+for ii in range(0,Nrun):
     dataset=np.random.permutation(ndata)
     a1data=np.empty(ntrain, dtype=int)
     a2data=np.empty(ntest, dtype=int)
     a1data[:]=dataset[0:ntrain]
     a2data[:]=dataset[ntrain:ndata]
-#    print("ii=",ii," : ",dataset)
-#    print("a1: ", a1data,a1data.__len__())
-#    print("a2: ", a2data,a2data.__len__())
     Xtrain=np.ndarray(shape=(ntrain, natom_layer), dtype=float)
     Ytrain = np.empty(ntrain, dtype=float)
     Xtest = np.ndarray(shape=(ntest, natom_layer), dtype=float)
@@ -186,6 +187,4 @@ for ii in range(0,1):
     gpregression(Xtrain,Ytrain,Xtest,Ytest,ntrain,ntest)
     del Xtrain,Ytrain
     del Xtest,Ytest
-
-
 

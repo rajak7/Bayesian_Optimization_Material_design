@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 from matplotlib import pyplot as plt
 from sklearn.gaussian_process import GaussianProcessRegressor
@@ -8,10 +9,18 @@ from scipy.stats import norm
 
 inputmap=dict()
 ninputmap=dict()
-totfea_atom=2
-natom_layer=6*totfea_atom
+totfea_atom=2              #total number of atoms per layer
+n_3layer_atoms=6           # number of atoms in 3 layer
+natom_layer=n_3layer_atoms*totfea_atom   #total number of features
+Niteration = 30            # number of iteration in a given Bayesian  Optimization
+#input parameters
+train_test_split=0.10                    # initial sampled data in a given Bayesian  Optimization run
+Nruns = 1                                # total number of Bayesian  Optimization runs
 
+
+#create input feature vector of the given n-layer heterostructure
 def createinputmap(inputmap,ninputmap,totfea_atom):
+    #define the eletronegetivity and ionization potential of each atoms
     inputmap['Mo'] = [2.16,684.3,190.0]
     inputmap['W'] = [2.36,770.0,193.0]
     inputmap['S'] = [2.58,999.6,88.8]
@@ -54,7 +63,7 @@ def createinputmap(inputmap,ninputmap,totfea_atom):
     for keys in ninputmap:
         print("nkey :", keys, ninputmap[keys])
 
-
+#read input data
 def readinput(filename,natom_layer):
     inputfile=open(filename,'r')
     dataset=list()
@@ -87,21 +96,22 @@ def readinput(filename,natom_layer):
 #        print("data: ",ii,Xdata[ii][:],Ydata[ii])
     return Xdata,Ydata,Xinfo,ndata
 
-
+#building a gaussian process regression model
 def gpregression(Xtrain,Ytrain,Nfeature):
     cmean=[1.0]*Nfeature
     cbound=[[1e-3, 1000]]*Nfeature
-#    kernel = C(1.0, [1e-3, 1e3]) * RBF(cmean, cbound)
     kernel = C(1.0, (1e-3, 1e3)) * matk(cmean, cbound, 1.5)
 
     gp = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=40, normalize_y=False)
     gp.fit(Xtrain, Ytrain)
     return gp
 
+#predict result using GP regression model
 def gprediction(gpnetwork,xtest):
     y_pred, sigma = gpnetwork.predict(xtest, return_std=True)
     return y_pred, sigma
 
+#compute expected improvement 
 def expectedimprovement(xdata,gpnetwork,ybest,itag,epsilon):
     ye_pred, esigma = gprediction(gpnetwork, xdata)
     expI = np.empty(ye_pred.size, dtype=float)
@@ -113,11 +123,11 @@ def expectedimprovement(xdata,gpnetwork,ybest,itag,epsilon):
             expI[ii]=0.0
     return expI
 
+#Bayesian optimization run
 def numberofopt(Xdata,Ydata,Xinfo,ndata,natom_layer,totfea_atom):
-    Niteration = 30
     itag = 1
     epsilon = 0.1
-    ntrain = int(0.10 * ndata)
+    ntrain = int(train_test_split * ndata)
     nremain = ndata - ntrain
     dataset = np.random.permutation(ndata)
     a1data = np.empty(ntrain, dtype=int)
@@ -203,20 +213,20 @@ def numberofopt(Xdata,Ydata,Xinfo,ndata,natom_layer,totfea_atom):
     Xbest=Xexploredtemp[Niteration-3:Niteration]
     Ybest=Yexploredtemp[Niteration - 3:Niteration]
     print("\n")
-    print("Initial Best Strucuture: ", xoptint, "has band gap: ", yopinit)
-    print("Final Optimal Strucuture: ", xoptval, "has band gap: ", yopttval,"in step: ",yoptstep)
-    print("Final Best Structure 1st: ",Xbest[2],"has band gap: ",  Ybest[2])
-    print("Final Best Structure 2st: ", Xbest[1],"has band gap: ", Ybest[1])
-    print("Final Best Structure 2st: ", Xbest[0],"has band gap: ", Ybest[0])
+    print("Initial Best Strucuture: ", xoptint, "has value: ", yopinit)
+    print("Final Optimal Strucuture: ", xoptval, "has value: ", yopttval,"in step: ",yoptstep)
+    print("Final Best Structure 1st: ",Xbest[2],"has value: ",  Ybest[2])
+    print("Final Best Structure 2st: ", Xbest[1],"has value: ", Ybest[1])
+    print("Final Best Structure 2st: ", Xbest[0],"has value: ", Ybest[0])
     return xoptint,yopinit,xoptval,yopttval
 
 
 #------- Program Starts from here -------------
 createinputmap(inputmap,ninputmap,totfea_atom)
-Xdata,Ydata,Xinfo,ndata=readinput("177data.txt",natom_layer)
+in_file=sys.argv[1]
+Xdata,Ydata,Xinfo,ndata=readinput(in_file,natom_layer)
 print("Original Training X and Y :",np.shape(Xdata),np.shape(Xdata))
 
-Nruns=1
 Xinitguess = np.chararray(Nruns, itemsize=20)
 Yinitguess = np.empty(Nruns, dtype=float)
 Xoptimal = np.chararray(Nruns, itemsize=20)
@@ -227,4 +237,4 @@ for ii in range(0,Nruns):
 
 print("\n-----Final Result------\n")
 for ii in range(0,Nruns):
-    print("Initial Best Strucuture:   ", Xinitguess[ii], "  has band gap:  ", Yinitguess[ii],"  Final Optimal Strucuture:   ", Xoptimal[ii], "  has band gap: ", Yoptimal[ii])
+    print("Initial Best Strucuture:   ", Xinitguess[ii], "  has value:  ", Yinitguess[ii],"  Final Optimal Strucuture:   ", Xoptimal[ii], "  has value: ", Yoptimal[ii])
