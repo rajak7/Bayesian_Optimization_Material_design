@@ -8,7 +8,8 @@
 predict_maxval.py: creates a gaussian process regression model using x% of data from 3-layer-band_gap.txt. After buiding the model predcits the band gap of the remaining (1-x%) data as test set. <br />
 
 *Dataset* <br /> 
-```3-layer-band_gap.txt:``` Band gap for 3-layer heretero-structure <br /> 
+```3-layer-band_gap.txt``` CBM and VBM 3-layer heretero-structure <br /> 
+```xaxisvalue.txt```   Contains the value of the wave vector 
 
 *Input Paramaters:* <br /> 
 inputfile_name="3-layer-band_gap.txt"    * ###file name of the input data * <br />
@@ -22,6 +23,9 @@ To run the program: ```predict_maxval.py ``` <br />
 
 predict_structure.py build a gaussian process (GP) regression model for condunction band minima and valance band maximum. It takes 3-layer-band_structure.txt as inout data and split in into training and test set. GP model is build using training set and the images of prediced condunction band minima and valance band maximum of the test set is saved in folder Bandstructure.
 
+*Dataset* <br /> 
+```"3-layer-band_structure.txt``` Band gap for 3-layer heretero-structure <br /> 
+
 *Input Paramaters:* <br /> 
 inputfile_name="3-layer-band_structure.txt"    * ###file name of the input data * <br />
 train_test_split=0.60                    * ###split between training and test set* <br />
@@ -33,9 +37,9 @@ To run the program: ```predict_structure.py ``` <br />
 *A Bayesian Optimization model to discover material with optimal property witn minimum structure evalulation*
 
 *Dataset* <br /> 
-```N_doped_EFF_max.txt:``` EFF (Electronic fitness function) maximum value for n-doped 3-layer heretero-structure <br /> 
-```P_doped_EFF_max.txt:``` EFF (Electronic fitness function) maximum value for p-doped 3-layer heretero-structure  <br /> 
-```3-layer-band_gap.txt:``` Maximum Band gap for 3-layer heretero-structure <br /> 
+```N_doped_EFF_max.txt ```  EFF (Electronic fitness function) maximum value for n-doped 3-layer heretero-structure <br /> 
+```P_doped_EFF_max.txt ```  EFF (Electronic fitness function) maximum value for p-doped 3-layer heretero-structure  <br /> 
+```3-layer-band_gap.txt ``` Maximum Band gap for 3-layer heretero-structure <br /> 
 
 *Input Paramaters:* <br /> 
 Inside the code Bayesian_opt.py, we have <br /> 
