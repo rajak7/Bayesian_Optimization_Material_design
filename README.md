@@ -18,8 +18,8 @@
 
 *Input Paramaters:* <br /> 
 Inside the code Bayesian_opt.py, we have <br /> 
-Nruns = 1                                *```total number of Bayesian  Optimization runs```* <br /> 
-train_test_split=0.10                    *```initial sampled data in a given Bayesian  Optimization run```* <br /> 
+Nruns = 1                                * /* total number of Bayesian  Optimization runs* <br /> 
+train_test_split=0.10                    * /* initial sampled data in a given Bayesian  Optimization run* <br /> 
 
 *To find n-doped 3-ayer hetero-structure with optimal EFF value* <br /> 
 Run ```python3.6 Bayesian_opt.py N_doped_EFF_max ``` <br /> 
