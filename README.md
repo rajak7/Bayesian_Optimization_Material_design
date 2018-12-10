@@ -1,6 +1,8 @@
 # Active Learning for Layered Materials
 
 ## Accelerated Design of Layered Materials with Bayesian Optimization
+Bassman, L., Rajak, P., et al., npj Computational Materials 4, 74 (2018).
+
 
 #### 1 ```predict_maxval.py:```
 *A Gaussian Process Regression model to predict band gap.* 
