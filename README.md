@@ -1,8 +1,12 @@
-# Active Learning for Layered Materials
+# Active Learning for Accelerated Design of Layered Materials
+Bassman, L., Rajak, P., et al., *npj Computational Materials* **4**, 74 (2018).
 
-## Accelerated Design of Layered Materials with Bayesian Optimization
-Bassman, L., Rajak, P., et al., npj Computational Materials 4, 74 (2018).
+<img src="Highlight_Figure.png" width="473" height="373" align="right">
 
+
+Hetero-structures made from vertically stacked monolayers of transition metal dichalcogenides hold great potential for thermoelectric devices of the future. Discovery of the optimal layered material for specific applications necessitates the estimation of key material properties, however, screening of properties via brute force ab initio calculations of the entire material structure space exceeds the limits of current computing resources. Moreover, the functional dependence of material properties on the structures is often complicated, making simplistic statistical procedures for prediction difficult to employ without large amounts of data collection.  This repository includes Gaussian process regression code for prediction of band gap, conduction band minimum dispersion curve, valance band maximum dispersion curve, and Thermoelectic EFF vs. dopant concentration curve.  It also includes Bayesian optimization code to predict the best thermoelectric material using the fewest structure calculations.  Data sets for all codes are also included.  Desciptions of the codes and datasets, as well as how to run the code, are given below.
+
+<br>
 
 #### 1 ```predict_maxval.py:```
 *A Gaussian Process Regression model to predict band gap.* 
