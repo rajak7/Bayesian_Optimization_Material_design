@@ -4,7 +4,7 @@ Bassman, L., Rajak, P., et al., *npj Computational Materials* **4**, 74 (2018).
 <img src="Highlight_Figure.png" width="473" height="373" align="right">
 
 
-Hetero-structures made from vertically stacked monolayers of transition metal dichalcogenides hold great potential for thermoelectric devices of the future. Discovery of the optimal layered material for specific applications necessitates the estimation of key material properties, however, screening of properties via brute force ab initio calculations of the entire material structure space exceeds the limits of current computing resources. Moreover, the functional dependence of material properties on the structures is often complicated, making simplistic statistical procedures for prediction difficult to employ without large amounts of data collection.  This repository includes Gaussian process regression code for prediction of band gap, conduction band minimum dispersion curve, valance band maximum dispersion curve, and Thermoelectic EFF vs. dopant concentration curve.  It also includes Bayesian optimization code to predict the best thermoelectric material using the fewest structure calculations.  Data sets for all codes are also included.  Desciptions of the codes and datasets, as well as how to run the code, are given below.
+Hetero-structures made from vertically stacked monolayers of transition metal dichalcogenides hold great potential for thermoelectric devices of the future. Discovery of the optimal layered material for specific applications necessitates the estimation of key material properties, however, screening of properties via brute force ab initio calculations of the entire material structure space exceeds the limits of current computing resources. Moreover, the functional dependence of material properties on the structures is often complicated, making simplistic statistical procedures for prediction difficult to employ without large amounts of data collection.  This repository includes Gaussian process regression code (predict_maxval.py, predict_structure.py) for prediction of band gap, conduction band minimum dispersion curve, valance band maximum dispersion curve, and Thermoelectic EFF vs. dopant concentration curve.  It also includes Bayesian optimization code (Bayesian_opt.py) to predict the best thermoelectric material using the fewest structure calculations.  Data sets for all codes are also included.  Desciptions of the codes and datasets, as well as how to run the code, are given below.  Python code (snl_prep.py) is also included for automatically generating a structure file for a given layered material and uploading it to the Materials Project Database, along with a bash script (create-[X]layers.sh) for automatically generating and uploading all 3-layered materials using 'snl_prep.py'.
 
 <br>
 
@@ -52,12 +52,32 @@ Inside the code Bayesian_opt.py, we have <br />
 Nruns = 1                  * ### total number of Bayesian  Optimization runs* <br /> 
 train_test_split=0.10      * ### initial sampled data in a given Bayesian  Optimization run* <br /> 
 
+
 *To find n-doped 3-ayer hetero-structure with optimal EFF value* <br /> 
 Run ```python3.6 Bayesian_opt.py N_doped_EFF_max ``` <br /> 
 *To find p-doped 3-ayer hetero-structure with optimal EFF value* <br /> 
 Run ```python3.6 Bayesian_opt.py P_doped_EFF_max ``` <br /> 
 *To find maximum band gap* <br />
 Run ```python3.6 Bayesian_opt.py 3-layer-band_gap.txt``` <br /> 
+
+
+#### 4 ```snl_prep.py:```
+*Given a layered crystal structure as a string, the python script generates a structure file and uploads it to the Materials Project Database*
+
+For example, for the 4-layered heterostructure MoTe2-MoS2-WS2-WTe2, type:
+
+python snl_prep.py -s MoTe2-MoS2-WS2-WTe2 -d . 
+
+The -s parameter is the structure of the layers encoded in a string. It must be formatted by the above way, but it could be any number of layers instead of just 4. The -d parameter specifies the base directory in which the newly created structure file should be placed, either absolute or relative to the pwd.
+
+#### 5 ```create-[X]layers.sh:```
+*Bash code for automatically generating all **unique** 2-, 3-, and 4-layered TMDC heterostructures and uploading them to MP Database by repeated use of the above python code, snl_prep.py. snl_prep.py is assumed to be in the same directory as the bash script*
+
+To run, type one of the following:
+
+bash create-2layers.sh
+bash create-3layers.sh
+bash create-4layers.sh
 
 
 
