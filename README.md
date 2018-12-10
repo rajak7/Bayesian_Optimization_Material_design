@@ -1,4 +1,4 @@
-# Bayesian_Optimization_Material_design
+# Active Learning for Layered Materials
 
 ## Accelerated Design of Layered Materials with Bayesian Optimization
 
@@ -34,7 +34,7 @@ Nrun = 1    <br />
 To run the program: ```predict_structure.py ``` <br /> 
 
 #### 3 ```Bayesian_opt.py:``` 
-*A Bayesian Optimization model to discover material with optimal property witn minimum structure evalulation*
+*An active learning model, based on Bayesian Optimization, to discover material with optimal property witn minimum structure evalulation*
 
 *Dataset* <br /> 
 ```N_doped_EFF_max.txt ```  EFF (Electronic fitness function) maximum value for n-doped 3-layer heretero-structure <br /> 
