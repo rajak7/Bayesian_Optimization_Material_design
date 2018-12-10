@@ -76,7 +76,9 @@ The -s parameter is the structure of the layers encoded in a string. It must be 
 To run, type one of the following:
 
 bash create-2layers.sh
+<br>
 bash create-3layers.sh
+<br>
 bash create-4layers.sh
 
 
